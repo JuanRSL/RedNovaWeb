@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { PostService } from '../services/post';
+import { PostService } from '../services/post.service';
 
 // Componente para mostrar y gestionar posts
 @Component({
   selector: 'app-post',
+  standalone: true,
   imports: [],
-  templateUrl: './post.html',
-  styleUrl: './post.scss',
+  templateUrl: './post.component.html',
+  styleUrl: './post.component.scss',
 })
 // Clase del componente Post
 export class PostComponent implements OnInit {
@@ -26,7 +27,7 @@ export class PostComponent implements OnInit {
   }
   // Método para eliminar un post por su ID
   deletePost(id: string) {
-    this.postService.deletePost(id).subscribe(() => {
+    this.postService.deletePost(Number(id)).subscribe(() => {
       this.loadPosts();
     });
   }
