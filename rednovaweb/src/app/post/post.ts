@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PostService } from '../services/post';
+import { Observable } from 'rxjs';
 
 // Componente para mostrar y gestionar posts
 @Component({
@@ -25,9 +26,7 @@ export class PostComponent implements OnInit {
     });
   }
   // Método para eliminar un post por su ID
-  deletePost(id: string) {
-    this.postService.deletePost(id).subscribe(() => {
-      this.loadPosts();
-    });
+  deletePost(id: string):Observable<any> {
+    return this.http.delete(`${this.apiUrl}/delete/${id}`);
   }
 }
