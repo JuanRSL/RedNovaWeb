@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PostService } from '../services/post';
-import { Observable } from 'rxjs';
 
 // Componente para mostrar y gestionar posts
 @Component({
@@ -16,17 +15,20 @@ export class PostComponent implements OnInit {
   posts: any[] = [];
   loading = false;
   errorMessage = '';
+
   // Inyección del servicio PostService en el constructor
   constructor(
     private postService: PostService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) { }
-// Método que se ejecuta al inicializar el componente
+
+  // Método que se ejecuta al inicializar el componente
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadPosts();
     }
-  };
+  }
+
   // Método para cargar los posts desde el servicio
   loadPosts() {
     this.loading = true;
@@ -39,8 +41,16 @@ export class PostComponent implements OnInit {
       this.errorMessage = error?.error?.message || 'No fue posible conectar con el backend';
     });
   }
-  // Método para eliminar un post por su ID
-  deletePost(id: string):Observable<any> {
-    return this.http.delete(`${this.apiUrl}/delete/${id}`);
+
+  // 🟢 CORREGIDO: Ahora le pide al servicio que elimine el post y luego actualiza la lista
+  deletePost(id: string): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este post?')) {
+      this.postService.deletePost(id).subscribe(() => {
+        // Filtra el post eliminado de la lista para que desaparezca visualmente de inmediato
+        this.posts = this.posts.filter(post => post.id !== id); 
+      }, (error) => {
+        this.errorMessage = error?.error?.message || 'No se pudo eliminar el post';
+      });
+    }
   }
 }
