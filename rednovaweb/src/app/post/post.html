@@ -1,1 +1,26 @@
-<p>post works!</p>
+<section style="padding: 1rem; max-width: 900px; margin: 0 auto;">
+	<h2>Posts</h2>
+
+	@if (loading) {
+		<p>Cargando posts...</p>
+	}
+
+	@if (errorMessage) {
+		<p style="color: #b00020;">{{ errorMessage }}</p>
+	}
+
+	@if (!loading && !errorMessage && posts.length === 0) {
+		<p>No hay posts disponibles.</p>
+	}
+
+	@if (!loading && !errorMessage && posts.length > 0) {
+		<ul>
+			@for (post of posts; track post._id) {
+				<li style="margin-bottom: 0.75rem;">
+					<strong>{{ post.title || 'Sin titulo' }}</strong>
+					<p>{{ post.content || post.description || '' }}</p>
+				</li>
+			}
+		</ul>
+	}
+</section>
