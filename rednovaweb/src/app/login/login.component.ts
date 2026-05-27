@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import {ReactiveFormsModule, FormGroup, FormControl, Validators} from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 
@@ -10,6 +10,9 @@ import { AuthService } from '../services/auth.service';
     styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+    
+    @Output() onLoginSuccess = new EventEmitter<void>();
+    
     formLogin = new FormGroup({
         email: new FormControl('', [Validators.required, Validators.email]),
         password: new FormControl('', [Validators.required])
@@ -22,10 +25,10 @@ export class LoginComponent {
             
             this.authService.login(this.formLogin.value).subscribe(
                 {next: (respuesta: any) => {
-                  console.log('El servidor responde: ', respuesta);
-
-                    alert('Prueba Login Exitosa');  
-                },
+                    console.log('El servidor responde: ', respuesta);
+                    
+                    this.onLoginSuccess.emit();
+                }, 
                 error: (error: any) => {
                     console.log('UPSS', error);
                     alert('Prueba Login Fallida');

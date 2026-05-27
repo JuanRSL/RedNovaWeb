@@ -1,1 +1,5 @@
-<app-login></app-login>
+@if (isLoggedIn()) {
+<app-post></app-post>
+} @else {
+<app-login (onLoginSuccess)="inicioPost()"></app-login>
+}

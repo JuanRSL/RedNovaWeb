@@ -11,4 +11,11 @@ import { LoginComponent } from "./login/login.component";
 })
 export class App {
   protected readonly title = signal('rednovaweb');
+
+  public isLoggedIn = signal(false);
+
+  //Se ejecutará cuando el login fue éxito
+  inicioPost() {
+    this.isLoggedIn.set(true);
+  } 
 }
