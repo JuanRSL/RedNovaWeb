@@ -1,0 +1,51 @@
+:root {
+  --rn-bg: #DAE0E6;
+  --rn-white: #FFFFFF;
+  --rn-header-bg: #FFFFFF;
+  --rn-primary: #FF4500; /* Reddit Orange */
+  --rn-text-main: #1C1C1C;
+  --rn-text-sub: #787C7E;
+  --rn-border: #EDEFF1;
+  --rn-hover: #F6F7F8;
+  --rn-blue: #0079D3;
+  --rn-vote: #878A8C;
+  --rn-upvote: #FF8b60;
+  --rn-downvote: #9494FF;
+}
+
+body {
+  background-color: var(--rn-bg);
+  color: var(--rn-text-main);
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+}
+
+* { box-sizing: border-box; }
+
+/* Global Utilities */
+.rn-card {
+  background: var(--rn-white);
+  border: 1px solid var(--rn-border);
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+.rn-card:hover {
+  border-color: #898989;
+}
+
+.btn {
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary { background: var(--rn-primary); color: white; }
+.btn-outline { border-color: var(--rn-blue); color: var(--rn-blue); background: transparent; }

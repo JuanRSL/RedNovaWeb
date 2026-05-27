@@ -9,21 +9,23 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'posts',
-    children: [
-      { path: '', loadComponent: () => import('./features/posts/post-list/post-list.component').then(m => m.PostListComponent) },
-      { path: 'new', loadComponent: () => import('./features/posts/post-form/post-form.component').then(m => m.PostFormComponent) },
-      { path: ':id', loadComponent: () => import('./features/posts/post-detail/post-detail.component').then(m => m.PostDetailComponent) }
-    ]
-  },
-  {
-    path: 'profile',
-    loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
-  },
-  {
     path: '',
-    redirectTo: 'posts',
-    pathMatch: 'full'
+    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    children: [
+      {
+        path: 'posts',
+        children: [
+          { path: '', loadComponent: () => import('./features/posts/post-list/post-list.component').then(m => m.PostListComponent) },
+          { path: 'new', loadComponent: () => import('./features/posts/post-form/post-form.component').then(m => m.PostFormComponent) },
+          { path: ':id', loadComponent: () => import('./features/posts/post-detail/post-detail.component').then(m => m.PostDetailComponent) }
+        ]
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      { path: '', redirectTo: 'posts', pathMatch: 'full' }
+    ]
   },
   { path: '**', redirectTo: 'posts' }
 ];
