@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {ReactiveFormsModule, FormGroup, FormControl, Validators} from '@angular/forms';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -14,11 +15,23 @@ export class LoginComponent {
         password: new FormControl('', [Validators.required])
     });
 
+    constructor(private authService: AuthService) {}
+
     pruebaLogin() {
         if (this.formLogin.valid) {
-            console.log('Hola :', this.formLogin.value);
+            
+            this.authService.login(this.formLogin.value).subscribe(
+                {next: (respuesta: any) => {
+                  console.log('El servidor responde: ', respuesta);
 
-            alert('Prueba Login Exitosa');
+                    alert('Prueba Login Exitosa');  
+                },
+                error: (error: any) => {
+                    console.log('UPSS', error);
+                    alert('Prueba Login Fallida');
+
+                }
+            });
         }
     }
 }

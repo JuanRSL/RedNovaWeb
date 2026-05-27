@@ -1,19 +1,28 @@
-<div class="login-container" style="max-width: 300px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
-  <h2>Iniciar Sesión</h2>
-  
-  <form [formGroup]="formLogin" (ngSubmit)="pruebaLogin()">
-    <div style="margin-bottom: 15px;">
-      <label style="display: block;">Usuario:</label>
-      <input type="text" formControlName="email" style="width: 100%; padding: 8px;">
-    </div>
+<div class="login-panel">
+  <div class="panel-header">
+    <h2>Iniciar Sesión</h2>
+    <span class="endpoint-tag">¡Bienvenidos a RedNova!</span>
+  </div>
 
-    <div style="margin-bottom: 15px;">
-      <label style="display: block;">Contraseña:</label>
-      <input type="password" formControlName="password" style="width: 100%; padding: 8px;">
-    </div>
+  <div class="panel-body">
+    <form [formGroup]="formLogin" (ngSubmit)="pruebaLogin()">
+      
+      <div class="field">
+        <label>Usuario (Email):</label>
+        <input type="text" formControlName="email" placeholder="tuemail@mail.com">
+      </div>
 
-    <button type="submit" [disabled]="formLogin.invalid" style="width: 100%; padding: 10px; background: blue; color: white; border: none; cursor: pointer;">
-      Ingresar
-    </button>
-  </form>
+      <div class="field">
+        <label>Contraseña:</label>
+        <input type="password" formControlName="password" placeholder="Ingresa tu contraseña">
+      </div>
+
+      <div class="divider"></div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="formLogin.invalid">
+        Ingresar →
+      </button>
+
+    </form>
+  </div>
 </div>
