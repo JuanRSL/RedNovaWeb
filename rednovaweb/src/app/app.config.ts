@@ -13,7 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(), // Optimización para SSR
       withInterceptors([authInterceptor]) // Registro del interceptor JWT
-    ),
-    provideClientHydration()
+    )
   ]
 };
