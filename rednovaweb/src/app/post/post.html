@@ -1,26 +1,384 @@
-<section style="padding: 1rem; max-width: 900px; margin: 0 auto;">
-	<h2>Posts</h2>
+<div class="portal-shell">
+  <header class="topbar">
+    <button class="brand" type="button" (click)="activeView = 'feed'; clearFilters()">
+      <span class="brand-mark">RN</span>
+      <span>
+        <strong>RedNova</strong>
+        <small>foros para leer mejor</small>
+      </span>
+    </button>
 
-	@if (loading) {
-		<p>Cargando posts...</p>
-	}
+    <label class="search-box">
+      <span>Buscar</span>
+      <input
+        type="search"
+        name="search"
+        [(ngModel)]="searchTerm"
+        placeholder="Posts, comunidades o autores"
+      />
+    </label>
 
-	@if (errorMessage) {
-		<p style="color: #b00020;">{{ errorMessage }}</p>
-	}
+    <nav class="view-tabs" aria-label="Vistas">
+      <button type="button" [class.is-active]="activeView === 'feed'" (click)="activeView = 'feed'">Feed</button>
+      <button type="button" [class.is-active]="activeView === 'explore'" (click)="activeView = 'explore'">Explorar</button>
+      <button type="button" [class.is-active]="activeView === 'compose'" (click)="activeView = 'compose'">Crear</button>
+    </nav>
 
-	@if (!loading && !errorMessage && posts.length === 0) {
-		<p>No hay posts disponibles.</p>
-	}
+    <div class="session-pill">
+      @if (currentUser; as user) {
+        <span>{{ user.username }}</span>
+        <button type="button" (click)="logout()">Salir</button>
+      } @else {
+        <span>Invitado</span>
+      }
+    </div>
+  </header>
 
-	@if (!loading && !errorMessage && posts.length > 0) {
-		<ul>
-			@for (post of posts; track post._id) {
-				<li style="margin-bottom: 0.75rem;">
-					<strong>{{ post.title || 'Sin titulo' }}</strong>
-					<p>{{ post.content || post.description || '' }}</p>
-				</li>
-			}
-		</ul>
-	}
-</section>
+  <main class="workspace">
+    <aside class="left-rail">
+      <section class="panel auth-panel">
+        @if (currentUser; as user) {
+          <p class="eyebrow">Sesion activa</p>
+          <h2>{{ user.username }}</h2>
+          <p class="muted">Puedes publicar, comentar, votar y crear comunidades.</p>
+          <button class="primary-action" type="button" (click)="activeView = 'compose'">Nueva publicacion</button>
+        } @else {
+          <div class="auth-switch">
+            <button type="button" [class.is-active]="authMode === 'login'" (click)="authMode = 'login'">Entrar</button>
+            <button type="button" [class.is-active]="authMode === 'register'" (click)="authMode = 'register'">Registro</button>
+          </div>
+
+          <form class="stacked-form" (ngSubmit)="submitAuth()">
+            @if (authMode === 'register') {
+              <label>
+                Usuario
+                <input name="username" type="text" [(ngModel)]="authForm.username" autocomplete="username" />
+              </label>
+            }
+
+            <label>
+              Email
+              <input name="email" type="email" [(ngModel)]="authForm.email" autocomplete="email" />
+            </label>
+
+            <label>
+              Password
+              <input name="password" type="password" [(ngModel)]="authForm.password" autocomplete="current-password" />
+            </label>
+
+            <button class="primary-action" type="submit" [disabled]="authLoading">
+              {{ authLoading ? 'Procesando...' : authMode === 'login' ? 'Iniciar sesion' : 'Crear cuenta' }}
+            </button>
+          </form>
+
+          @if (authMessage) {
+            <p class="form-message">{{ authMessage }}</p>
+          }
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Categorias</p>
+            <h2>Foros</h2>
+          </div>
+          <button class="ghost-action" type="button" (click)="clearFilters()">Limpiar</button>
+        </div>
+
+        <button class="filter-row" type="button" [class.is-active]="selectedForumId === 'all'" (click)="selectForum('all')">
+          <span>Todos</span>
+          <strong>{{ posts.length }}</strong>
+        </button>
+
+        @for (forum of forums; track forum._id) {
+          <button class="filter-row" type="button" [class.is-active]="selectedForumId === forum._id" (click)="selectForum(forum._id)">
+            <span>{{ forum.name }}</span>
+            <strong>{{ forumSubforumCount(forum) }}</strong>
+          </button>
+        }
+
+        @if (!forums.length && !loading) {
+          <p class="empty-note">No hay categorias todavia.</p>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">{{ selectedForumName }}</p>
+            <h2>Comunidades</h2>
+          </div>
+        </div>
+
+        <button class="filter-row" type="button" [class.is-active]="selectedSubforumId === 'all'" (click)="selectSubforum('all')">
+          <span>Todas</span>
+          <strong>{{ visibleSubforums.length }}</strong>
+        </button>
+
+        @for (subforum of visibleSubforums; track subforum._id) {
+          <button class="filter-row community-row" type="button" [class.is-active]="selectedSubforumId === subforum._id" (click)="selectSubforum(subforum._id)">
+            <span>
+              {{ subforum.name }}
+              <small>r/{{ subforum.slug }}</small>
+            </span>
+          </button>
+        }
+
+        @if (!visibleSubforums.length && !loading) {
+          <p class="empty-note">No hay comunidades para este filtro.</p>
+        }
+      </section>
+    </aside>
+
+    <section class="content-stage">
+      @if (actionMessage) {
+        <div class="notice">
+          <span>{{ actionMessage }}</span>
+          <button type="button" (click)="actionMessage = ''">Cerrar</button>
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="notice is-error">
+          <span>{{ errorMessage }}</span>
+          <button type="button" (click)="loadInitialData()">Reintentar</button>
+        </div>
+      }
+
+      <section class="feed-toolbar">
+        <div>
+          <p class="eyebrow">Leyendo</p>
+          <h1>{{ selectedSubforumName }}</h1>
+          <p class="muted">{{ visiblePosts.length }} publicaciones encontradas</p>
+        </div>
+
+        <div class="toolbar-actions">
+          <label class="compact-select">
+            Orden
+            <select name="sortMode" [(ngModel)]="sortMode">
+              <option value="new">Recientes</option>
+              <option value="top">Puntaje</option>
+              <option value="discussion">Conversacion</option>
+            </select>
+          </label>
+          <button class="primary-action" type="button" (click)="activeView = 'compose'">Crear</button>
+        </div>
+      </section>
+
+      @if (loading) {
+        <section class="loading-block">
+          <span class="loader"></span>
+          <p>Cargando RedNova...</p>
+        </section>
+      } @else {
+        @if (activeView === 'feed') {
+          <section class="post-list">
+            @if (!visiblePosts.length) {
+              <div class="empty-state">
+                <h2>No hay publicaciones aqui</h2>
+                <p>Prueba limpiar filtros, buscar otro tema o crear la primera publicacion.</p>
+                <button class="primary-action" type="button" (click)="activeView = 'compose'">Crear publicacion</button>
+              </div>
+            }
+
+            @for (post of visiblePosts; track post._id) {
+              <article class="post-card">
+                <div class="vote-column">
+                  <button type="button" title="Votar positivo" (click)="vote(post, 'up')">+</button>
+                  <strong>{{ postScore(post) }}</strong>
+                  <button type="button" title="Votar negativo" (click)="vote(post, 'down')">-</button>
+                </div>
+
+                <div class="post-body">
+                  <div class="post-meta">
+                    <button type="button" (click)="selectSubforum(getPostSubforumId(post))">r/{{ getSubforumName(post.subforum) }}</button>
+                    <span>{{ getForumName(post.forum) }}</span>
+                    <span>por {{ getAuthorName(post.author) }}</span>
+                    @if (post.createdAt) {
+                      <span>{{ post.createdAt | date:'mediumDate' }}</span>
+                    }
+                  </div>
+
+                  <button class="post-title" type="button" (click)="togglePost(post)">
+                    {{ post.title }}
+                  </button>
+                  <p class="post-copy">{{ post.content }}</p>
+
+                  <div class="post-actions">
+                    <button type="button" (click)="togglePost(post)">
+                      {{ expandedPostId === post._id ? 'Ocultar' : 'Leer' }} comentarios
+                    </button>
+                    <span>{{ postCommentCount(post) }} comentarios</span>
+                  </div>
+
+                  @if (expandedPostId === post._id) {
+                    <section class="comments-panel">
+                      @if (commentsLoading[post._id]) {
+                        <p class="muted">Cargando comentarios...</p>
+                      } @else {
+                        @if ((commentsByPost[post._id] ?? []).length === 0) {
+                          <p class="empty-note">Sin comentarios. Abre la conversacion.</p>
+                        }
+
+                        @for (comment of commentsByPost[post._id] ?? []; track comment._id) {
+                          <article class="comment-item">
+                            <strong>{{ getAuthorName(comment.author) }}</strong>
+                            <p>{{ comment.content }}</p>
+                          </article>
+                        }
+                      }
+
+                      <form class="comment-form" (ngSubmit)="submitComment(post)">
+                        <textarea
+                          name="comment-{{ post._id }}"
+                          rows="3"
+                          [(ngModel)]="commentDrafts[post._id]"
+                          placeholder="Aporta algo a la conversacion"
+                        ></textarea>
+                        <button class="secondary-action" type="submit">Comentar</button>
+                      </form>
+                    </section>
+                  }
+                </div>
+              </article>
+            }
+          </section>
+        }
+
+        @if (activeView === 'explore') {
+          <section class="explore-grid">
+            @for (forum of forums; track forum._id) {
+              <article class="forum-card">
+                <p class="eyebrow">{{ forumSubforumCount(forum) }} comunidades</p>
+                <h2>{{ forum.name }}</h2>
+                <p>{{ forum.description || 'Categoria abierta para conversaciones de RedNova.' }}</p>
+                <button class="secondary-action" type="button" (click)="selectForum(forum._id); activeView = 'feed'">
+                  Ver publicaciones
+                </button>
+              </article>
+            }
+
+            @if (!forums.length) {
+              <div class="empty-state">
+                <h2>No hay foros cargados</h2>
+                <p>Agrega categorias base para organizar comunidades y publicaciones.</p>
+              </div>
+            }
+          </section>
+        }
+
+        @if (activeView === 'compose') {
+          <section class="compose-grid">
+            <article class="composer">
+              <p class="eyebrow">Publicar</p>
+              <h2>Nueva publicacion</h2>
+
+              @if (!isAuthenticated) {
+                <p class="empty-note">Necesitas iniciar sesion para publicar.</p>
+              }
+
+              <form class="stacked-form" (ngSubmit)="submitPost()">
+                <label>
+                  Comunidad
+                  <select name="postSubforum" [(ngModel)]="postForm.subforumId" [disabled]="!subforums.length">
+                    @for (subforum of subforums; track subforum._id) {
+                      <option [value]="subforum._id">{{ subforum.name }} - r/{{ subforum.slug }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label>
+                  Titulo
+                  <input name="postTitle" type="text" [(ngModel)]="postForm.title" maxlength="140" />
+                </label>
+
+                <label>
+                  Contenido
+                  <textarea name="postContent" rows="8" [(ngModel)]="postForm.content"></textarea>
+                </label>
+
+                <button class="primary-action" type="submit" [disabled]="postSaving || !canCreatePost">
+                  {{ postSaving ? 'Publicando...' : 'Publicar' }}
+                </button>
+              </form>
+            </article>
+
+            <article class="composer">
+              <p class="eyebrow">Comunidades</p>
+              <h2>Crear comunidad</h2>
+              <p class="muted">Organiza conversaciones dentro de una categoria existente.</p>
+
+              <form class="stacked-form" (ngSubmit)="submitCommunity()">
+                <label>
+                  Categoria
+                  <select name="communityForum" [(ngModel)]="communityForm.forumId" [disabled]="!forums.length">
+                    @for (forum of forums; track forum._id) {
+                      <option [value]="forum._id">{{ forum.name }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label>
+                  Nombre
+                  <input
+                    name="communityName"
+                    type="text"
+                    [(ngModel)]="communityForm.name"
+                    (ngModelChange)="updateCommunitySlug($event)"
+                    maxlength="70"
+                  />
+                </label>
+
+                <label>
+                  Slug
+                  <input
+                    name="communitySlug"
+                    type="text"
+                    [(ngModel)]="communityForm.slug"
+                    (ngModelChange)="markCommunitySlugTouched()"
+                    maxlength="48"
+                  />
+                </label>
+
+                <label>
+                  Descripcion
+                  <textarea name="communityDescription" rows="5" [(ngModel)]="communityForm.description"></textarea>
+                </label>
+
+                <button class="secondary-action" type="submit" [disabled]="communitySaving || !isAuthenticated || !forums.length">
+                  {{ communitySaving ? 'Creando...' : 'Crear comunidad' }}
+                </button>
+              </form>
+            </article>
+          </section>
+        }
+      }
+    </section>
+
+    <aside class="right-rail">
+      <section class="panel">
+        <p class="eyebrow">RedNova</p>
+        <h2>Leer sin ruido</h2>
+        <p class="muted">
+          Filtra por categoria, entra a comunidades y abre comentarios solo cuando quieras profundizar.
+        </p>
+      </section>
+
+      <section class="panel metrics">
+        <div>
+          <strong>{{ posts.length }}</strong>
+          <span>posts</span>
+        </div>
+        <div>
+          <strong>{{ forums.length }}</strong>
+          <span>foros</span>
+        </div>
+        <div>
+          <strong>{{ subforums.length }}</strong>
+          <span>comunidades</span>
+        </div>
+      </section>
+    </aside>
+  </main>
+</div>
