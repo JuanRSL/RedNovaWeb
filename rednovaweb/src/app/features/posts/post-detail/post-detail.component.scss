@@ -1,0 +1,28 @@
+.post-detail {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: #6b7280;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.content {
+  line-height: 1.8;
+  color: #374151;
+  margin-bottom: 1.25rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.score {
+  font-weight: 700;
+}

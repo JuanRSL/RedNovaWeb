@@ -1,1 +1,23 @@
-<router-outlet />
+<header class="app-header">
+  <nav class="app-nav">
+    <a routerLink="/posts" class="brand">RedNova</a>
+    <div class="links">
+      <a routerLink="/posts">Posts</a>
+      <a routerLink="/posts/new">New post</a>
+      <a routerLink="/profile">Profile</a>
+    </div>
+    <div class="account">
+      <ng-container *ngIf="authService.currentUser() as user; else guest">
+        <span class="username">{{ user.username }}</span>
+        <button type="button" (click)="authService.logout()">Logout</button>
+      </ng-container>
+      <ng-template #guest>
+        <a routerLink="/auth/login">Login</a>
+        <a routerLink="/auth/register">Register</a>
+      </ng-template>
+    </div>
+  </nav>
+</header>
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>

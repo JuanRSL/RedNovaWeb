@@ -1,12 +1,19 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterOutlet, RouterLink, NgIf],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('rednovaweb');
+export class App implements OnInit {
+  constructor(public authService: AuthService) {}
+
+  ngOnInit() {
+    this.authService.loadSession().subscribe();
+  }
 }

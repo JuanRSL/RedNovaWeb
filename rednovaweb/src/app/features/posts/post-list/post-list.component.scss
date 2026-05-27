@@ -1,0 +1,62 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.header-row h1 {
+  margin: 0 0 0.25rem;
+}
+
+.post-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.post-card header a {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  text-decoration: none;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-top: 0.65rem;
+}
+
+.excerpt {
+  margin: 1rem 0;
+  color: #374151;
+}
+
+.footer,
+.post-card footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+button {
+  min-width: 110px;
+}
+
+.score {
+  font-weight: 700;
+}

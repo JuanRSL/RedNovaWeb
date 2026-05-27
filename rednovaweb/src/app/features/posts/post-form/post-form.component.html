@@ -1,0 +1,27 @@
+<section class="page">
+  <h1>Create a new post</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Title
+      <input formControlName="title" />
+    </label>
+
+    <label>
+      Subforum
+      <select formControlName="subforum">
+        <option value="">Select a subforum</option>
+        <option *ngFor="let sub of subforums()" [value]="sub._id || sub.id">{{ sub.name }}</option>
+      </select>
+    </label>
+
+    <label>
+      Content
+      <textarea rows="8" formControlName="content"></textarea>
+    </label>
+
+    <button type="submit" [disabled]="form.invalid || isSubmitting()">Publish post</button>
+
+    <p class="error" *ngIf="error()">{{ error() }}</p>
+  </form>
+</section>

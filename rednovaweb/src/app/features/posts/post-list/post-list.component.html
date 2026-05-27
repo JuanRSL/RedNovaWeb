@@ -1,0 +1,38 @@
+<section class="page">
+  <div class="header-row">
+    <div>
+      <h1>Posts</h1>
+      <p>Browse the latest posts from RedNova.</p>
+    </div>
+    <a class="button" routerLink="/posts/new">Create new post</a>
+  </div>
+
+  <p class="error" *ngIf="error()">{{ error() }}</p>
+  <p *ngIf="isLoading()">Loading posts…</p>
+
+  <div class="post-list" *ngIf="!isLoading() && posts().length > 0">
+    <article class="post-card" *ngFor="let post of posts()">
+      <header>
+        <a [routerLink]="['/posts', post._id || post.id]">{{ post.title }}</a>
+        <div class="meta">
+          <span>{{ post.author?.username || 'Unknown author' }}</span>
+          <span>{{ post.forum?.name || post.subforum?.name || 'Community' }}</span>
+          <span>{{ post.createdAt | date: 'medium' }}</span>
+        </div>
+      </header>
+
+      <p class="excerpt">{{ post.content }}</p>
+
+      <footer>
+        <div class="score">Score: {{ post.score ?? 0 }}</div>
+        <div class="actions">
+          <button type="button" (click)="vote(post, 'up')">Upvote</button>
+          <button type="button" (click)="vote(post, 'down')">Downvote</button>
+          <button type="button" *ngIf="canDelete(post)" (click)="deletePost(post)">Delete</button>
+        </div>
+      </footer>
+    </article>
+  </div>
+
+  <p *ngIf="!isLoading() && posts().length === 0">No posts found.</p>
+</section>

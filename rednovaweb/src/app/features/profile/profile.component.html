@@ -1,0 +1,35 @@
+<section class="page auth-page">
+  <h1>My Profile</h1>
+
+  <div *ngIf="authService.currentUser() as user; else noUser">
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p *ngIf="user.roles?.length"><strong>Roles:</strong> {{ user.roles?.join(', ') }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        Email
+        <input type="email" formControlName="email" />
+      </label>
+
+      <label>
+        Current password
+        <input type="password" formControlName="currentPassword" />
+      </label>
+
+      <label>
+        New password
+        <input type="password" formControlName="newPassword" />
+      </label>
+
+      <button type="submit" [disabled]="isSubmitting()">Save changes</button>
+
+      <p class="error" *ngIf="error()">{{ error() }}</p>
+      <p class="success" *ngIf="success()">{{ success() }}</p>
+    </form>
+  </div>
+
+  <ng-template #noUser>
+    <p>You need to login to view and update your profile.</p>
+  </ng-template>
+</section>
